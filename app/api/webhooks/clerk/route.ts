@@ -1,7 +1,7 @@
 import { Webhook } from 'svix';
 import { headers } from 'next/headers';
 import { WebhookEvent } from '@clerk/nextjs/server';
-import { createUser } from '@/lib/db/User/mutation';
+import { createUser, deleteUser, updateUser } from '@/lib/db/User/mutation';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
@@ -55,6 +55,20 @@ export async function POST(req: Request) {
       email: payload.data.email_addresses[0].email_address,
       role: payload.data.private_metadata.role,
       image_url: payload.data.image_url,
+    });
+  }
+
+  if (evt.type === 'user.updated') {
+    await updateUser({
+      externalUserId: payload.data.id,
+      username: payload.data.username,
+      image_url: payload.data.image_url,
+    });
+  }
+
+  if (evt.type === 'user.deleted') {
+    await deleteUser({
+      externalUserId: payload.data.id,
     });
   }
 
